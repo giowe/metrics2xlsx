@@ -6,23 +6,28 @@ const xl = require('excel4node');
 
 module.exports = (data) => {
   const times = [];
-  const disks = {};
-  const memory = {};
+  const diskData = {};
+  const memoryData = {};
 
   data.forEach(result => {
     const { time, disk, memory } = result;
     times.push(time);
     disk.forEach(d => {
-      if (!disks[d.name]) disks[d.name] = {};
-      disks[d.name][time] = {
+      if (!diskData[d.name]) diskData[d.name] = {};
+      diskData[d.name][time] = {
         available: d.available,
         used: d.used
       };
     });
-    memory[time] = memory.MemTotal - memory.MemFree - memory.MemAvailable;
+
+    const memoryUtilization = memory.MemTotal - memory.MemFree - memory.MemAvailable;
+    memoryData[time] = {
+      memoryUtilization,
+      percentage: memoryUtilization / memory.MemTotal
+    };
   });
 
-  const diskNames = Object.keys(disks);
+  const diskNames = Object.keys(diskData);
   const diskCount = diskNames.length;
 
   const wb = new xl.Workbook({
@@ -52,11 +57,20 @@ module.exports = (data) => {
         top: { style: 'thin' },
         bottom: { style: 'thin' }
       }
+    }),
+    percentage: wb.createStyle({
+      border: {
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+        top: { style: 'thin' },
+        bottom: { style: 'thin' }
+      },
+      numberFormat: '0.00%'
     })
   };
   const defaultSheetConfig = {
     sheetFormat: {
-      defaultColWidth: 15
+      defaultColWidth: 20
     }
   };
 
@@ -69,19 +83,19 @@ module.exports = (data) => {
   });
 
   const memorySheet = wb.addWorksheet('Memory', defaultSheetConfig);
-  diskSheet.cell(1, 1).string('MemoryUtilization').style(styles.title);
+  memorySheet.cell(1, 1).string('MemoryUtilization').style(styles.title);
 
   times.forEach((t, column) => {
     diskSheet.cell(1, column + 2).date(t).style(styles.title);
     diskSheet.cell(diskCount + 3, column + 2).date(t).style(styles.title);
     diskNames.forEach((diskName, row) => {
-      const diskAtTime = disks[diskName][t];
+      const diskAtTime = diskData[diskName][t];
       diskSheet.cell(row + 2, column + 2).number(parseInt(diskAtTime.used)).style(styles.standard);
       diskSheet.cell(diskCount + row + 4,  column + 2).number(parseInt(diskAtTime.available)).style(styles.standard);
     });
 
     memorySheet.cell(1, column + 2).date(t).style(styles.title);
-    memorySheet.cell(2, column + 2).number(memory[t]).style(styles.standard);
+    memorySheet.cell(2, column + 2).number(memoryData[t].percentage).style(styles.percentage);
   });
 
   wb.write('sample.xlsx');

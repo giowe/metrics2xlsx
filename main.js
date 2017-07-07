@@ -7,32 +7,67 @@ const { argv } = require('yargs');
 const path =require('path');
 const fs = require('fs');
 
-const config = {};
+const config = {
+  bucket: null,
+  credentials: null
+};
 try {
   Object.assign(config, JSON.parse(fs.readFileSync(path.join(process.env.HOME, '.metrics2xlsx'), 'UTF-8')));
 } catch(ignore) {
   console.log(`Can't find config file at ${path.join(process.env.HOME, '.metrics2xlsx')}`);
 }
 
-const s3 = new AWS.S3(config);
+if (argv.bucket) config.bucket = argv.bucket;
+
+const s3 = new AWS.S3(config.credentials);
 const params = {
-  Bucket: 'sf-system-metrics',
+  Bucket: config.bucket,
   Prefix: argv.group + '/' +argv.m
 };
 
-const _listObjects = () => {
-  /*s3.listObjects(params, (err, data) => {
-    if (err) console.log(err, err.stack); // an error occurred
-    else {
-      if(!(data.isTruncated)) ended = true;
-      console.log(data);
-      data = data.Contents;
-      data.forEach(function (value) {
-        keys.push(value.Key);
-      });
+
+const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
+  s3.listObjectsV2({
+    Bucket: config.bucket,
+    MaxKeys: 10,
+    StartAfter: out[out.length-1]
+  }, (err, data) => {
+    if (err) return reject(err);
+
+    data.Contents.forEach(content => {
+      //if (content.LastModificationDate )
+      out.push(content.Key);
+    });
+    if (data.IsTruncated) {
+      resolve(_listAllKeys(out));
+    } else {
+      resolve(out);
     }
-  });*/
-};
+  });
+});
+
+_listAllKeys()
+  .then(data => {
+    Promise.all(data.map(key => new Promise((resolve, reject) => {
+      s3.getObject({
+        Bucket: config.bucket,
+        Key: key
+      }, (err, data) => {
+        if (err) return reject(err);
+        resolve(JSON.parse(data.Body));
+      });
+    })))
+      .then((results) => {
+        console.log(results);
+      })
+      .catch(err => {
+        console.log(err);
+      });
+  })
+  .catch(err => {
+    console.log(err);
+  });
+
 
 /*Promise.all(
   keys.map(
@@ -63,4 +98,4 @@ const _listObjects = () => {
     console.log(error)
   });*/
 
-listObjects();
+//listObjects();

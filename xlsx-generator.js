@@ -3,7 +3,7 @@
 const graph = require('xlsx-chart');
 const xl = require('excel4node');
 
-module.exports = (data) => {
+module.exports = (filename, data) => {
   const times = [];
   const diskData = {};
   const memoryData = {};
@@ -149,6 +149,6 @@ module.exports = (data) => {
     });
   });
 
-  wb.write('sample.xlsx');
-  console.log('file saved!');
+  wb.write(filename);
+  console.log(`${filename} saved!`);
 };

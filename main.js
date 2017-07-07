@@ -4,7 +4,7 @@ const AWS = require('aws-sdk');
 const { argv } = require('yargs');
 const path =require('path');
 const fs = require('fs');
-const generateXlsx = require('./xlsx-generator');
+const saveXlsx = require('./xlsx-generator');
 
 const config = {
   bucket: null,
@@ -50,8 +50,8 @@ _listAllKeys()
         resolve(JSON.parse(data.Body));
       });
     })))
-      .then((results) => {
-        generateXlsx(results);
+      .then(data => {
+        saveXlsx('./sample.xlsx', data);
       })
       .catch(err => {
         console.log(err);

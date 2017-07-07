@@ -72,8 +72,11 @@ _listAllKeys()
         diskSheet.set(1, 1, 'DiskUtilization');
         diskSheet.set(1, diskCount + 2, 'DiskAvailable');
 
+        const dt = [];
+        let i = 2;
         times.forEach(t => {
-
+          diskSheet.set(i, 1, t);
+          i++;
         });
 
         workbook.save((ok) => {

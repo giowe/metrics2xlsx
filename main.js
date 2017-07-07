@@ -20,12 +20,6 @@ try {
 if (argv.bucket) config.bucket = argv.bucket;
 
 const s3 = new AWS.S3(config.credentials);
-const params = {
-  Bucket: config.bucket,
-  Prefix: argv.group + '/' +argv.m
-};
-
-
 const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
   s3.listObjectsV2({
     Bucket: config.bucket,
@@ -68,34 +62,3 @@ _listAllKeys()
     console.log(err);
   });
 
-
-/*Promise.all(
-  keys.map(
-    (key, index) =>
-      new Promise(resolve => {
-        //s3.getObject(<bucket, key>, (err, data) => {
-        // if (err) return reject(err)
-        // return resolve(data)
-        //})
-        resolve(responses[index])
-      })
-  )
-)
-  .then(array => {
-    // L'array te lo torna ordinato come tu hai messo i parametri
-    let output = {};
-    array.forEach(file => {
-      Object.keys(file).map(key => {
-        if (!output.hasOwnProperty(key)) {
-          output[key] = []
-        }
-        output[key].push(file[key])
-      })
-    });
-    console.log(output)
-  })
-  .catch(error => {
-    console.log(error)
-  });*/
-
-//listObjects();

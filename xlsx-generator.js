@@ -57,15 +57,6 @@ module.exports = (data) => {
         top: { style: 'thin' },
         bottom: { style: 'thin' }
       }
-    }),
-    percentage: wb.createStyle({
-      border: {
-        left: { style: 'thin' },
-        right: { style: 'thin' },
-        top: { style: 'thin' },
-        bottom: { style: 'thin' }
-      },
-      numberFormat: '0.00%'
     })
   };
   const defaultSheetConfig = {
@@ -84,6 +75,7 @@ module.exports = (data) => {
 
   const memorySheet = wb.addWorksheet('Memory', defaultSheetConfig);
   memorySheet.cell(1, 1).string('MemoryUtilization').style(styles.title);
+  memorySheet.cell(2, 1).string('Percentage').style(styles.title);
 
   times.forEach((t, column) => {
     diskSheet.cell(1, column + 2).date(t).style(styles.title);
@@ -95,7 +87,7 @@ module.exports = (data) => {
     });
 
     memorySheet.cell(1, column + 2).date(t).style(styles.title);
-    memorySheet.cell(2, column + 2).number(memoryData[t].percentage).style(styles.percentage);
+    memorySheet.cell(2, column + 2).number(memoryData[t].percentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
   });
 
   wb.write('sample.xlsx');

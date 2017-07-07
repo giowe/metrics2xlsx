@@ -42,7 +42,7 @@ const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
 
 _listAllKeys()
   .then(data => {
-    Promise.all(data.map(key => new Promise((resolve, reject) => {
+    Promise.all(data.sort().map(key => new Promise((resolve, reject) => {
       s3.getObject({
         Bucket: config.bucket,
         Key: key
@@ -52,7 +52,34 @@ _listAllKeys()
       });
     })))
       .then((results) => {
-        console.log(results);
+        const times = [];
+        const disks = {};
+        results.forEach(result => {
+          const { time, disk } = result;
+          times.push(time);
+          disk.forEach(d => {
+            if (!disks[d.name]) disks[d.name] = {};
+            disks[d.name][time] = {
+              available: d.available,
+              used: d.used
+            };
+          });
+        });
+
+        const diskCount = Object.keys(disks);
+        const workbook = excelbuilder.createWorkbook('./', 'sample.xlsx');
+        const diskSheet = workbook.createSheet('disk', results.length+1, diskCount+3);
+        diskSheet.set(1, 1, 'DiskUtilization');
+        diskSheet.set(1, diskCount+2, 'DiskAvailable');
+
+        times.forEach(t => {
+
+        });
+
+        workbook.save((ok) => {
+          if (!ok) return workbook.cancel();
+          console.log('congratulations, your workbook created');
+        });
       })
       .catch(err => {
         console.log(err);
@@ -61,4 +88,3 @@ _listAllKeys()
   .catch(err => {
     console.log(err);
   });
-

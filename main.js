@@ -66,11 +66,11 @@ _listAllKeys()
           });
         });
 
-        const diskCount = Object.keys(disks);
+        const diskCount = Object.keys(disks).length;
         const workbook = excelbuilder.createWorkbook('./', 'sample.xlsx');
-        const diskSheet = workbook.createSheet('disk', results.length+1, diskCount+3);
+        const diskSheet = workbook.createSheet('disk', results.length + 1, diskCount + 3);
         diskSheet.set(1, 1, 'DiskUtilization');
-        diskSheet.set(1, diskCount+2, 'DiskAvailable');
+        diskSheet.set(1, diskCount + 2, 'DiskAvailable');
 
         times.forEach(t => {
 

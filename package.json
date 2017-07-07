@@ -1,10 +1,14 @@
 {
   "name": "sys-metrics-to-xlsx",
-  "version": "0.0.0",
-  "description": "",
+  "version": "1.0.0",
+  "description": "Applicativo per convertire le metriche delle macchine in documenti di Excel",
   "main": "main.js",
   "bin": {
     "sm2x": "./bin/sm2x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos/SF-Metrics2xlsx"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

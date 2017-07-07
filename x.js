@@ -4,7 +4,7 @@ const x = {
   'cpu': {
   'time': 1499419646065,
     'total': {//<------
-    'cpuName': 'cpu',
+      'cpuName': 'cpu',
       'user': '105246',
       'nice': '470',
       'system': '19128',

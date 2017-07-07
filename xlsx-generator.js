@@ -8,9 +8,12 @@ module.exports = (data) => {
   const times = [];
   const diskData = {};
   const memoryData = {};
+  const cpuData = {};
+  const networkData = {};
 
-  data.forEach(result => {
-    const { time, disk, memory } = result;
+  data.forEach(({ time, disk, memory, cpu, network }, i)=> {
+    const { cpu : prevCpu, network : prevNetwork } = i === 0 ? {} : data[i-1];
+
     times.push(time);
     disk.forEach(d => {
       if (!diskData[d.name]) diskData[d.name] = {};
@@ -25,6 +28,21 @@ module.exports = (data) => {
       memoryUtilization,
       percentage: memoryUtilization / memory.MemTotal
     };
+
+    if (i === 0) return;
+    const prevIdle = prevCpu.total.idle + prevCpu.total.iowait;
+    const idle = cpu.total.idle + cpu.total.iowait;
+
+    const prevNonIdle = prevCpu.total.user + prevCpu.total.nice + prevCpu.total.system + prevCpu.total.irq + prevCpu.total.softirq + prevCpu.total.steal;
+    const nonIdle = cpu.total.user + cpu.total.nice + cpu.total.system + cpu.total.irq + cpu.total.softirq + cpu.total.steal;
+
+    const prevTotal = prevIdle + prevNonIdle;
+    const total = idle + nonIdle;
+
+    const totald = total - prevTotal;
+    const idled = idle - prevIdle;
+
+    cpuData[time] = (totald - idled) / totald;
   });
 
   const diskNames = Object.keys(diskData);
@@ -77,6 +95,14 @@ module.exports = (data) => {
   memorySheet.cell(1, 1).string('MemoryUtilization').style(styles.title);
   memorySheet.cell(2, 1).string('Percentage').style(styles.title);
 
+  const cpuSheet = wb.addWorksheet('Cpu', defaultSheetConfig);
+  cpuSheet.cell(1, 1).string('CPUUtilization').style(styles.title);
+  cpuSheet.cell(2, 1).string('Percentage').style(styles.title);
+
+  /*const memorySheet = wb.addWorksheet('Memory', defaultSheetConfig);
+  memorySheet.cell(1, 1).string('MemoryUtilization').style(styles.title);
+  memorySheet.cell(2, 1).string('Percentage').style(styles.title);*/
+
   times.forEach((t, column) => {
     diskSheet.cell(1, column + 2).date(t).style(styles.title);
     diskSheet.cell(diskCount + 3, column + 2).date(t).style(styles.title);
@@ -88,6 +114,13 @@ module.exports = (data) => {
 
     memorySheet.cell(1, column + 2).date(t).style(styles.title);
     memorySheet.cell(2, column + 2).number(memoryData[t].percentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
+
+    cpuSheet.cell(1, column + 2).date(t).style(styles.title);
+    if (cpuData[t]) {
+      cpuSheet.cell(2, column + 2).number(cpuData[t]).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
+    } else {
+      cpuSheet.cell(2, column + 2).string('NA').style(styles.standard);
+    }
   });
 
   wb.write('sample.xlsx');

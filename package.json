@@ -14,8 +14,6 @@
   "dependencies": {
     "aws-sdk": "^2.82.0",
     "excel4node": "^1.2.1",
-    "exceljs": "^0.4.13",
-    "msexcel-builder": "0.0.2",
     "xlsx-chart": "^0.3.0",
     "yargs": "^8.0.2"
   },

@@ -57,16 +57,8 @@ module.exports = (data) => {
       defaultColWidth: 15
     }
   };
-  //const workbook = excelbuilder.createWorkbook('./', 'sample.xlsx');
 
   const diskSheet = wb.addWorksheet('Disk', defaultSheetConfig);
-  //const diskSheet = workbook.createSheet('disk', data.length + 1, diskCount * 2 + 3);
-
-  /*diskSheet.width(1, 14);
-  diskSheet.set(1, 1, 'DiskUtilization');
-  diskSheet.font(1, 1, { bold: true });
-  diskSheet.set(1, diskCount + 3, 'DiskAvailable');
-  diskSheet.font(1, diskCount + 3, { bold: true });*/
 
   diskSheet.cell(1, 1).string('DiskUtilization').style(styles.title);
   diskSheet.cell(diskCount + 3, 1).string('DiskAvailable').style(styles.title);

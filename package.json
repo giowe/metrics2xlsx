@@ -2,9 +2,9 @@
   "name": "sys-metrics-to-xlsx",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "bin": {
-    "smtx": "./bin/smtx"
+    "sm2x": "./bin/sm2x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,5 +17,8 @@
     "msexcel-builder": "0.0.2",
     "xlsx-chart": "^0.3.0",
     "yargs": "^8.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.1.1"
   }
 }

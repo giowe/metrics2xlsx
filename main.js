@@ -8,7 +8,9 @@ const saveXlsx = require('./xlsx-generator');
 
 const config = {
   bucket: null,
-  credentials: null
+  credentials: null,
+  customerId: null,
+  id: null
 };
 try {
   Object.assign(config, JSON.parse(fs.readFileSync(path.join(process.env.HOME, '.metrics2xlsx'), 'UTF-8')));
@@ -17,12 +19,23 @@ try {
 }
 
 if (argv.bucket) config.bucket = argv.bucket;
+if (argv.customerId || argv._[0]) config.customerId = argv.customerId || argv._[0];
+if (argv.id || argv._[1]) config.id = argv.id || argv._[1];
+
+const { customerId, id } = config;
+['customerId', 'id'].forEach(key => {
+  if (!config[key]) {
+    console.log(`No ${key} found;\nsm2x <customerId> <id>`);
+    process.exit();
+  }
+});
 
 const s3 = new AWS.S3(config.credentials);
 const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
   s3.listObjectsV2({
     Bucket: config.bucket,
     MaxKeys: 10,
+    Prefix: `${customerId}/${id}`,
     StartAfter: out[out.length-1]
   }, (err, data) => {
     if (err) return reject(err);
@@ -51,7 +64,8 @@ _listAllKeys()
       });
     })))
       .then(data => {
-        saveXlsx('./sample.xlsx', data);
+        if (!data.length) console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}`);
+        else saveXlsx('./sample.xlsx', data);
       })
       .catch(err => {
         console.log(err);

@@ -28,7 +28,7 @@ module.exports = (filename, data) => {
       };
     });
 
-    const memoryUtilization = memory.MemTotal - memory.MemFree - memory.MemAvailable;
+    const memoryUtilization = memory.MemTotal - memory.MemFree;
     memoryData[time] = {
       memoryUtilization,
       percentage: memoryUtilization / memory.MemTotal

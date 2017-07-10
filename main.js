@@ -18,9 +18,15 @@ try {
   console.log(`Can't find config file at ${path.join(process.env.HOME, '.metrics2xlsx')}`);
 }
 
-if (argv.bucket) config.bucket = argv.bucket;
+if (argv.bucket || argv.b) config.bucket = argv.bucket || argv.b;
 if (argv.customerId || argv._[0]) config.customerId = argv.customerId || argv._[0];
 if (argv.id || argv._[1]) config.id = argv.id || argv._[1];
+const filename = argv.o || argv.out || config.id;
+let out = `./${filename}`;
+if(path.extname(filename) == '.xlsx')
+{
+  out = path.normalze(filename.substring(0, filename.length - 5));
+}
 
 const { customerId, id } = config;
 ['customerId', 'id'].forEach(key => {
@@ -65,7 +71,7 @@ _listAllKeys()
     })))
       .then(data => {
         if (!data.length) console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}`);
-        else saveXlsx('./sample.xlsx', data);
+        else saveXlsx(`./${out}.xlsx`, data);
       })
       .catch(err => {
         console.log(err);

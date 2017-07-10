@@ -1,6 +1,5 @@
 'use strict';
 
-const graph = require('xlsx-chart');
 const xl = require('excel4node');
 
 module.exports = (filename, data) => {
@@ -10,38 +9,38 @@ module.exports = (filename, data) => {
   const cpuData = {};
   const networkData = {};
 
-  data.forEach(({ time, disk, memory, cpu, network }, i)=> {
-    times.push(time);
-    disk.forEach(d => {
-      if (!diskData[d.name]) diskData[d.name] = {};
-      diskData[d.name][time] = {
-        available: d.available,
-        used: d.used
+  data.forEach(({ Time, Disks, Memory, Cpu, Network }, i)=> {
+    times.push(Time);
+    Disks.forEach(d => {
+      if (!diskData[d.Name]) diskData[d.Name] = {};
+      diskData[d.Name][Time] = {
+        available: d.Available,
+        used: d.Used
       };
     });
 
-    network.forEach(n => {
-      if (!networkData[n.name]) networkData[n.name] = {};
-      networkData[n.name][time] = {
-        bytesIn: n.bytes_in,
-        bytesOut: n.bytes_out
+    Network.forEach(n => {
+      if (!networkData[n.Name]) networkData[n.Name] = {};
+      networkData[n.Name][Time] = {
+        bytesIn: n.BytesIn,
+        bytesOut: n.BytesOut
       };
     });
 
-    const memoryUtilization = memory.MemTotal - memory.MemFree;
-    memoryData[time] = {
+    const memoryUtilization = Memory.MemTotal - Memory.MemFree;
+    memoryData[Time] = {
       memoryUtilization,
-      percentage: memoryUtilization / memory.MemTotal
+      percentage: memoryUtilization / Memory.MemTotal
     };
 
-    if (i === 0) return cpuData[time] = 'NA';
-    const prevCpuTotal = data[i-1].cpu.total;
-    const cpuTotal = cpu.total;
-    const prevIdle = prevCpuTotal.idle + prevCpuTotal.iowait;
-    const idle = cpuTotal.idle + cpuTotal.iowait;
+    if (i === 0) return cpuData[Time] = 'NA';
+    const prevCpuTotal = data[i-1].Cpu.TotalCpuUsage;
+    const cpuTotal = Cpu.TotalCpuUsage;
+    const prevIdle = prevCpuTotal.Idle + prevCpuTotal.Iowait;
+    const idle = cpuTotal.Idle + cpuTotal.Iowait;
 
-    const prevNonIdle = prevCpuTotal.user + prevCpuTotal.nice + prevCpuTotal.system + prevCpuTotal.irq + prevCpuTotal.softirq + prevCpuTotal.steal;
-    const nonIdle = cpuTotal.user + cpuTotal.nice + cpuTotal.system + cpuTotal.irq + cpuTotal.softirq + cpuTotal.steal;
+    const prevNonIdle = prevCpuTotal.User + prevCpuTotal.Nice + prevCpuTotal.System + prevCpuTotal.Irq + prevCpuTotal.Softirq + prevCpuTotal.Steal;
+    const nonIdle = cpuTotal.User + cpuTotal.Nice + cpuTotal.System + cpuTotal.Irq + cpuTotal.Softirq + cpuTotal.Steal;
 
     const prevTotal = prevIdle + prevNonIdle;
     const total = idle + nonIdle;
@@ -49,7 +48,7 @@ module.exports = (filename, data) => {
     const totald = total - prevTotal;
     const idled = idle - prevIdle;
 
-    cpuData[time] = (totald - idled) / totald;
+    cpuData[Time] = (totald - idled) / totald;
   });
 
   const wb = new xl.Workbook({

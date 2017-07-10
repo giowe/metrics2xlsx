@@ -1,24 +1,32 @@
 {
-  "name": "sys-metrics-to-xlsx",
+  "name": "metrics2xlsx",
   "version": "1.0.0",
-  "description": "Applicativo per convertire le metriche delle macchine in documenti di Excel",
+  "description": "It's a tool that allows you to convert system metrics files uploded on S3 into a .xlsx file.To collect those data we recommend using the npm module [CloudWatchClient]() available even in GO language at this [link]() (if you want a compiled version)",
   "main": "main.js",
   "bin": {
-    "sm2x": "./bin/sm2x"
+    "m2x": "./bin/m2x"
   },
   "repository": {
     "type": "git",
     "url": "ssh://git-codecommit.eu-west-1.amazonaws.com/v1/repos/SF-Metrics2xlsx"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
+  "author": "Giovanni Bruno",
+  "contributors": [
+    {
+      "name": "Giovanni Bruno",
+      "email": "giovanni.bruno@soluzionifutura.it",
+      "url": "www.soluzionifutura.it"
+    },
+    {
+      "name": "Emanuele Zanni",
+      "email": "zanni.emanuele.re@gmail.com",
+      "url": "https://github.com/zanni99"
+    }
+  ],
+  "license": "MIT",
   "dependencies": {
     "aws-sdk": "^2.82.0",
     "excel4node": "^1.2.1",
-    "xlsx-chart": "^0.3.0",
     "yargs": "^8.0.2"
   },
   "devDependencies": {

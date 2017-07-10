@@ -160,6 +160,7 @@ module.exports = (filename, data) => {
       } else {
         networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
         networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);
+
       }
     });
   });

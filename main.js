@@ -23,7 +23,7 @@ if (argv.customerId || argv._[0]) config.customerId = argv.customerId || argv._[
 if (argv.id || argv._[1]) config.id = argv.id || argv._[1];
 const filename = argv.o || argv.out || config.id;
 let out = `./${filename}`;
-if(path.extname(filename) == '.xlsx')
+if(path.extname(filename) === '.xlsx')
 {
   out = path.normalze(filename.substring(0, filename.length - 5));
 }

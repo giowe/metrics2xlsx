@@ -1,6 +1,6 @@
 {
   "name": "metrics2xlsx",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "It's a tool that allows you to convert system metrics files uploded on S3 into a .xlsx file.To collect those data we recommend using the npm module [CloudWatchClient]() available even in GO language at this [link]() (if you want a compiled version)",
   "main": "main.js",
   "bin": {

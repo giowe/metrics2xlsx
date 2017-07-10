@@ -78,6 +78,17 @@ module.exports = (filename, data) => {
         top: { style: 'thin' },
         bottom: { style: 'thin' }
       }
+    }),
+    NA: wb.createStyle({
+      border: {
+        left: { style: 'thin' },
+        right: { style: 'thin' },
+        top: { style: 'thin' },
+        bottom: { style: 'thin' }
+      },
+      alignment: {
+        horizontal: 'right'
+      }
     })
   };
   const defaultSheetConfig = {
@@ -128,7 +139,7 @@ module.exports = (filename, data) => {
 
     cpuSheet.cell(1, c + 2).date(t).style(styles.title);
     if (cpuData[t] === 'NA') {
-      cpuSheet.cell(2, c + 2).string('NA').style(styles.standard);
+      cpuSheet.cell(2, c + 2).string('NA').style(styles.NA);
     } else {
       cpuSheet.cell(2, c + 2).number(cpuData[t]).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
     }
@@ -139,11 +150,16 @@ module.exports = (filename, data) => {
       const networkAtTime = networkData[networkName][t];
       const networkAtTimePre = c === 0 ? null : networkData[networkName][times[c-1]];
       if (networkAtTimePre) {
-        networkSheet.cell(row + 2, c + 2).number(networkAtTime.bytesIn - networkAtTimePre.bytesIn).style(styles.standard);
-        networkSheet.cell(networkCount + row + 4,  c + 2).number(networkAtTime.bytesOut - networkAtTimePre.bytesOut).style(styles.standard);
+        if(networkAtTime.bytesIn - networkAtTimePre.bytesIn < 0){
+          networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
+          networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);
+        }else{
+          networkSheet.cell(row + 2, c + 2).number(networkAtTime.bytesIn - networkAtTimePre.bytesIn).style(styles.standard);
+          networkSheet.cell(networkCount + row + 4,  c + 2).number(networkAtTime.bytesOut - networkAtTimePre.bytesOut).style(styles.standard);
+        }
       } else {
-        networkSheet.cell(row + 2, c + 2).string('NA').style(styles.standard);
-        networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.standard);
+        networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
+        networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);
       }
     });
   });

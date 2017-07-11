@@ -13,7 +13,7 @@
 ## What is metrics2xlsx?
 
 metrics2xlsx is a tool that allows you to convert system metrics files uploded on S3 into a .xlsx file.
-To collect those data we recommend using the npm module [sys-metrics-collector]() available even in GO language at this [link]() (if you want a compiled version)
+To collect those data we recommend using the npm module [sys-metrics-collector](https://www.npmjs.com/package/sys-metrics-collector) available even in GO language at this [link](https://github.com/giowe/cloudwatch-client/tree/go) (if you want a compiled version)
 
 ## How to use it
 

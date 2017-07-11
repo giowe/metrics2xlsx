@@ -26,6 +26,7 @@
   "dependencies": {
     "aws-sdk": "^2.82.0",
     "excel4node": "^1.2.1",
+    "system-metrics-formatter": "git+https://github.com/giowe/system-metrics-formatter.git",
     "yargs": "^8.0.2"
   },
   "devDependencies": {

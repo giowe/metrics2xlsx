@@ -3,53 +3,8 @@
 const xl = require('excel4node');
 
 module.exports = (filename, data) => {
-  const times = [];
-  const diskData = {};
-  const memoryData = {};
-  const cpuData = {};
-  const networkData = {};
 
-  data.forEach(({ Time, Disks, Memory, Cpu, Network }, i)=> {
-    times.push(Time);
-    Disks.forEach(d => {
-      if (!diskData[d.Name]) diskData[d.Name] = {};
-      diskData[d.Name][Time] = {
-        available: d.Available,
-        used: d.Used
-      };
-    });
-
-    Network.forEach(n => {
-      if (!networkData[n.Name]) networkData[n.Name] = {};
-      networkData[n.Name][Time] = {
-        bytesIn: n.BytesIn,
-        bytesOut: n.BytesOut
-      };
-    });
-
-    const memoryUtilization = Memory.MemTotal - Memory.MemFree;
-    memoryData[Time] = {
-      memoryUtilization,
-      percentage: memoryUtilization / Memory.MemTotal
-    };
-
-    if (i === 0) return cpuData[Time] = 'NA';
-    const prevCpuTotal = data[i-1].Cpu.TotalCpuUsage;
-    const cpuTotal = Cpu.TotalCpuUsage;
-    const prevIdle = prevCpuTotal.Idle + prevCpuTotal.Iowait;
-    const idle = cpuTotal.Idle + cpuTotal.Iowait;
-
-    const prevNonIdle = prevCpuTotal.User + prevCpuTotal.Nice + prevCpuTotal.System + prevCpuTotal.Irq + prevCpuTotal.Softirq + prevCpuTotal.Steal;
-    const nonIdle = cpuTotal.User + cpuTotal.Nice + cpuTotal.System + cpuTotal.Irq + cpuTotal.Softirq + cpuTotal.Steal;
-
-    const prevTotal = prevIdle + prevNonIdle;
-    const total = idle + nonIdle;
-
-    const totald = total - prevTotal;
-    const idled = idle - prevIdle;
-
-    cpuData[Time] = (totald - idled) / totald;
-  });
+  const { diskData, memoryData, cpuData, networkData, times } = data;
 
   const wb = new xl.Workbook({
     dateFormat: 'd hh:mm:ss'
@@ -148,19 +103,12 @@ module.exports = (filename, data) => {
     networkSheet.cell(networkCount + 3, c + 2).date(t).style(styles.title);
     networkNames.forEach((networkName, row) => {
       const networkAtTime = networkData[networkName][t];
-      const networkAtTimePre = c === 0 ? null : networkData[networkName][times[c-1]];
-      if (networkAtTimePre) {
-        if(networkAtTime.bytesIn - networkAtTimePre.bytesIn < 0){
-          networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
-          networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);
-        }else{
-          networkSheet.cell(row + 2, c + 2).number(networkAtTime.bytesIn - networkAtTimePre.bytesIn).style(styles.standard);
-          networkSheet.cell(networkCount + row + 4,  c + 2).number(networkAtTime.bytesOut - networkAtTimePre.bytesOut).style(styles.standard);
-        }
-      } else {
+      if(networkAtTime.bytesIn === 'NA' && networkAtTime.bytesOut === 'NA'){
         networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
         networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);
-
+      }else{
+        networkSheet.cell(row + 2, c + 2).number(networkAtTime.bytesIn).style(styles.standard);
+        networkSheet.cell(networkCount + row + 4,  c + 2).number(networkAtTime.bytesOut).style(styles.standard);
       }
     });
   });

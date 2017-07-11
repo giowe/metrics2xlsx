@@ -1,11 +1,10 @@
 'use strict';
 
-const AWS = require('aws-sdk');
 const { argv } = require('yargs');
 const path =require('path');
 const fs = require('fs');
 const saveXlsx = require('./xlsx-generator');
-const zlib = require('zlib');
+const formatter = require('system-metrics-formatter');
 
 const config = {
   bucket: null,
@@ -37,47 +36,12 @@ const { customerId, id } = config;
   }
 });
 
-const s3 = new AWS.S3(config.credentials);
-const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
-  s3.listObjectsV2({
-    Bucket: config.bucket,
-    MaxKeys: 10,
-    Prefix: `${customerId}/${id}`,
-    StartAfter: out[out.length-1]
-  }, (err, data) => {
-    if (err) return reject(err);
-
-    data.Contents.forEach(content => {
-      //if (content.LastModificationDate )
-      out.push(content.Key);
-    });
-    if (data.IsTruncated) {
-      resolve(_listAllKeys(out));
-    } else {
-      resolve(out);
-    }
-  });
-});
-
-_listAllKeys()
+formatter(config.bucket, config.customerId, config.id, config.credentials.accessKeyId, config.credentials.secretAccessKey, config.credentials.region)
   .then(data => {
-    Promise.all(data.sort().map(key => new Promise((resolve, reject) => {
-      s3.getObject({
-        Bucket: config.bucket,
-        Key: key
-      }, (err, data) => {
-        if (err) return reject(err);
-        resolve(JSON.parse(zlib.inflateSync(data.Body).toString()));
-      });
-    })))
-      .then(data => {
-        if (!data.length) console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}`);
-        else saveXlsx(`./${out}.xlsx`, data);
-      })
-      .catch(err => {
-        console.log(err);
-      });
+    saveXlsx(`./${out}.xlsx`, data);
   })
-  .catch(err => {
-    console.log(err);
+
+  .catch(error =>{
+    console.log(error.message);
   });
+

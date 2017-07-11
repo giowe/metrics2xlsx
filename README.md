@@ -48,7 +48,7 @@ This file is structured like this:
    
 #### Data
   I recommend the npm module [sys-metrics-collector]() available even in GO language at this [link]() (if you want a compiled version) to collect such metrics and put them on an S3 bucket;
-  On the S3 bucket you have to put file named: ``<CustomerId>/<Id>/<CustomerId>_<Id>_<UnixTime>``
+  On the S3 bucket you have to put a Gzipped file named: ``<CustomerId>/<Id>/<CustomerId>_<Id>_<UnixTime>``
   
   Structured like this:
   ```

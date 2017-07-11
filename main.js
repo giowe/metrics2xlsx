@@ -5,6 +5,7 @@ const { argv } = require('yargs');
 const path =require('path');
 const fs = require('fs');
 const saveXlsx = require('./xlsx-generator');
+const zlib = require('zlib');
 
 const config = {
   bucket: null,
@@ -66,7 +67,7 @@ _listAllKeys()
         Key: key
       }, (err, data) => {
         if (err) return reject(err);
-        resolve(JSON.parse(data.Body));
+        resolve(JSON.parse(zlib.inflateSync(data.Body).toString()));
       });
     })))
       .then(data => {

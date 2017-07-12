@@ -4,7 +4,13 @@ const xl = require('excel4node');
 
 module.exports = (filename, data) => {
 
-  const { diskData, memoryData, cpuData, networkData, times } = data;
+  const times = [];
+  let diskNames = [];
+  const DiskData = {};
+  const MemoryData = {};
+  const CpuData = {};
+  const NetworkData = {};
+  let networkNames =[];
 
   const wb = new xl.Workbook({
     dateFormat: 'd hh:mm:ss'
@@ -52,8 +58,24 @@ module.exports = (filename, data) => {
     }
   };
 
+  data.forEach(datum => {
+    const { time, diskData, memoryData, cpuData, networkData } = datum;
+    times.push(time);
+    diskNames = Object.keys(diskData);
+    diskNames.forEach(diskName =>{
+      if (!DiskData[diskName]) DiskData[diskName] = {};
+      DiskData[diskName][time] = diskData[diskName];
+    });
+    MemoryData[time] = memoryData;
+    CpuData[time] = cpuData;
+    networkNames = Object.keys(networkData);
+    networkNames.forEach(networkName =>{
+      if (!NetworkData[networkName]) NetworkData[networkName] = {};
+      NetworkData[networkName][time] = networkData[networkName];
+    });
+  });
+
   const diskSheet = wb.addWorksheet('Disk', defaultSheetConfig);
-  const diskNames = Object.keys(diskData);
   const diskCount = diskNames.length;
   diskSheet.cell(1, 1).string('DiskUtilization').style(styles.title);
   diskSheet.cell(diskCount + 3, 1).string('DiskAvailable').style(styles.title);
@@ -71,7 +93,6 @@ module.exports = (filename, data) => {
   cpuSheet.cell(2, 1).string('Percentage').style(styles.title);
 
   const networkSheet = wb.addWorksheet('Network', defaultSheetConfig);
-  const networkNames = Object.keys(networkData);
   const networkCount = networkNames.length;
   networkSheet.cell(1, 1).string('BytesIn').style(styles.title);
   networkSheet.cell(networkCount + 3, 1).string('BytesOut').style(styles.title);
@@ -84,25 +105,25 @@ module.exports = (filename, data) => {
     diskSheet.cell(1, c + 2).date(t).style(styles.title);
     diskSheet.cell(diskCount + 3, c + 2).date(t).style(styles.title);
     diskNames.forEach((diskName, r) => {
-      const diskAtTime = diskData[diskName][t];
+      const diskAtTime = DiskData[diskName][t];
       diskSheet.cell(r + 2, c + 2).number(diskAtTime.used).style(styles.standard);
       diskSheet.cell(diskCount + r + 4,  c + 2).number(diskAtTime.available).style(styles.standard);
     });
 
     memorySheet.cell(1, c + 2).date(t).style(styles.title);
-    memorySheet.cell(2, c + 2).number(memoryData[t].percentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
+    memorySheet.cell(2, c + 2).number(MemoryData[t].percentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
 
     cpuSheet.cell(1, c + 2).date(t).style(styles.title);
-    if (cpuData[t] === 'NA') {
+    if (CpuData[t] === 'NA') {
       cpuSheet.cell(2, c + 2).string('NA').style(styles.NA);
     } else {
-      cpuSheet.cell(2, c + 2).number(cpuData[t]).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
+      cpuSheet.cell(2, c + 2).number(CpuData[t]).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
     }
 
     networkSheet.cell(1, c + 2).date(t).style(styles.title);
     networkSheet.cell(networkCount + 3, c + 2).date(t).style(styles.title);
     networkNames.forEach((networkName, row) => {
-      const networkAtTime = networkData[networkName][t];
+      const networkAtTime = NetworkData[networkName][t];
       if(networkAtTime.bytesIn === 'NA' && networkAtTime.bytesOut === 'NA'){
         networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
         networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);

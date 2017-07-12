@@ -27,7 +27,7 @@ const filename = argv.o || argv.out || config.id;
 let out = `./${filename}`;
 if(path.extname(filename) === '.xlsx')
 {
-  out = path.normalze(filename.substring(0, filename.length - 5));
+  out = path.normalize(filename.substring(0, filename.length - 5));
 }
 
 const { customerId, id } = config;

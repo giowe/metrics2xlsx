@@ -23,11 +23,14 @@ try {
 if (argv.bucket || argv.b) config.bucket = argv.bucket || argv.b;
 if (argv.customerId || argv._[0]) config.customerId = argv.customerId || argv._[0];
 if (argv.id || argv._[1]) config.id = argv.id || argv._[1];
-const filename = argv.o || argv.out || config.id;
-let out = `./${filename}`;
-if(path.extname(filename) === '.xlsx')
-{
-  out = path.normalize(filename.substring(0, filename.length - 5));
+const filename = argv.o || argv.out;
+let out = `./${config.id}`;
+if(filename){
+  out = filename;
+  if(path.extname(filename) === '.xlsx')
+  {
+    out = path.normalize(filename.substring(0, filename.length - 5));
+  }
 }
 
 const { customerId, id } = config;

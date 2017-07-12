@@ -1,0 +1,35 @@
+{
+  "name": "metrics2xlsx",
+  "version": "1.3.0",
+  "description": "metrics2xlsx is a tool that allows you to convert system metrics files uploded on S3 and formatted by [system-metrics-formatter](https://www.npmjs.com/package/system-metrics-formatter) into a .xlsx file.To collect those data we recommend using the npm module [system-metrics-collector](https://www.npmjs.com/package/system-metrics-collector) available even in GO language at this [link](https://github.com/giowe/system-metrics-collector/tree/go) (if you want a compiled version)",
+  "bin": {
+    "m2x": "./bin/m2x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/giowe/metrics2xlsx"
+  },
+  "author": "Giovanni Bruno",
+  "contributors": [
+    {
+      "name": "Giovanni Bruno",
+      "email": "giovanni.bruno@soluzionifutura.it",
+      "url": "www.soluzionifutura.it"
+    },
+    {
+      "name": "Emanuele Zanni",
+      "email": "zanni.emanuele.re@gmail.com",
+      "url": "https://github.com/zanni99"
+    }
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.82.0",
+    "excel4node": "^1.2.1",
+    "system-metrics-formatter": "^1.0.1",
+    "yargs": "^8.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^4.1.1"
+  }
+}

@@ -75,7 +75,7 @@ _listAllKeys()
     if (!data.length){
       console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}`);
     } else{
-      saveXlsx(`./${out}.xlsx`, formatter(...data));
+      saveXlsx(`${out}.xlsx`, formatter(...data));
     }
   })
   .catch(error =>{

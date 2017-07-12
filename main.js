@@ -24,7 +24,7 @@ if (argv.bucket || argv.b) config.bucket = argv.bucket || argv.b;
 if (argv.customerId || argv._[0]) config.customerId = argv.customerId || argv._[0];
 if (argv.id || argv._[1]) config.id = argv.id || argv._[1];
 const filename = argv.o || argv.out;
-let out = `./${config.id}`;
+let out = `${config.id}`;
 if(filename){
   out = filename;
   if(path.extname(filename) === '.xlsx')
@@ -70,7 +70,7 @@ _listAllKeys()
         Key: key
       }, (err, data) => {
         if (err) return reject(err);
-        resolve(JSON.parse(zlib.inflateSync(data.Body).toString()));
+        resolve(JSON.parse(zlib.unzipSync(data.Body).toString()));
       });
     })));
   })
@@ -78,7 +78,7 @@ _listAllKeys()
     if (!data.length){
       console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}`);
     } else{
-      saveXlsx(`${out}.xlsx`, formatter(...data));
+      saveXlsx(`./${out}.xlsx`, formatter(...data));
     }
   })
   .catch(error =>{

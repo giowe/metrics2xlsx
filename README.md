@@ -41,6 +41,8 @@ This file is structured like this:
 
   This will generate a file .xlsx in your current working directory, named `<Id>.xlsx`,
   containing one sheet for each metric
+  
+  You can run: ``$ m2x`` to list all your bucket or ``$ m2x <CustomerId>`` to list all the ids linked to a CustomerId 
 
 #### Flags
    - ```-o``` or ```--out``` change the name and path in which you would like to save the file

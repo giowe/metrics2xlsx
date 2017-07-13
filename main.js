@@ -32,22 +32,17 @@ if(filename){
     out = path.normalize(filename.substring(0, filename.length - 5));
   }
 }
-
 const { customerId, id } = config;
-['customerId', 'id'].forEach(key => {
-  if (!config[key]) {
-    console.log(`No ${key} found;\nsm2x <customerId> <id>`);
-    process.exit();
-  }
-});
-
 const s3 = new AWS.S3(config.credentials);
 
-const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
+const _listAllKeys = (customerId = null, id = null, out = []) => new Promise((resolve, reject) => {
+  let prefix = '';
+  if(customerId && id) prefix = `${customerId}/${id}`;
+  else if(customerId) prefix = `${customerId}`;
   s3.listObjectsV2({
     Bucket: config.bucket,
     MaxKeys: 10,
-    Prefix: `${customerId}/${id}`,
+    Prefix: prefix,
     StartAfter: out[out.length-1]
   }, (err, data) => {
     if (err) return reject(err);
@@ -55,14 +50,75 @@ const _listAllKeys = (out = []) => new Promise((resolve, reject) => {
       out.push(content.Key);
     });
     if (data.IsTruncated) {
-      resolve(_listAllKeys(out));
+      resolve(_listAllKeys(customerId, id, out));
     } else {
       resolve(out);
     }
   });
 });
 
-_listAllKeys()
+const _listBucket = (customerId = null) => new Promise((resolve, reject) => {
+  if(!customerId){
+    _listAllKeys()
+      .then(keys =>{
+        const bucketListed = {};
+        keys.forEach(key=>{
+          key = key.split('/');
+          const customer = key[0];
+          const id = key[1];
+          if(!(bucketListed[customer])) bucketListed[customer] = {};
+          bucketListed[customer][id] = true;
+        });
+        resolve(bucketListed);
+      })
+      .catch(error => {
+        console.log(error.message);
+      });
+  }else{
+    _listAllKeys(customerId)
+      .then(keys =>{
+        const customerListed = {};
+        keys.forEach(key=>{
+          key = key.split('/');
+          const id = key[1];
+          customerListed[id] = true;
+        });
+        resolve(customerListed);
+      })
+      .catch(error => {
+        console.log(error.message);
+      });
+  }
+});
+
+if (!config['id']) {
+  if(config['customerId']){
+    _listBucket(customerId)
+      .then(data => {
+        console.log('Here are all the possible Id linked to the customer :\n');
+        console.log(`${customerId}:`);
+        const Ids = Object.keys(data);
+        Ids.forEach(Id => console.log(` - ${Id} `));
+        process.exit();
+      });
+  }else{
+    _listBucket()
+      .then(data => {
+        console.log('Here are all the possible combination Customer/Id :\n');
+        const Customers = Object.keys(data);
+        Customers.forEach(customer => {
+          console.log(`${customer}:`);
+          const Ids = Object.keys(data[customer]);
+          Ids.forEach(Id => console.log(` - ${Id} `));
+          console.log();
+        });
+        process.exit();
+      });
+  }
+}
+
+
+_listAllKeys(config.customerId, config.id)
   .then(data => {
     return Promise.all(data.sort().map(key => new Promise((resolve, reject) => {
       s3.getObject({
@@ -76,7 +132,19 @@ _listAllKeys()
   })
   .then(data => {
     if (!data.length){
-      console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}`);
+      console.log(`No data found for:\ncustomerId = ${customerId}\nid = ${id}\n\n`);
+      _listBucket()
+        .then(data => {
+          console.log('Here are all the possible combination Customer/Id :\n');
+          const Customers = Object.keys(data);
+          Customers.forEach(customer => {
+            console.log(`${customer}:`);
+            const Ids = Object.keys(data[customer]);
+            Ids.forEach(Id => console.log(` - ${Id} `));
+            console.log();
+          });
+          process.exit();
+        });
     } else{
       saveXlsx(`./${out}.xlsx`, formatter(...data));
     }

@@ -114,7 +114,7 @@ module.exports = (filename, data) => {
     memorySheet.cell(2, c + 2).number(MemoryData[t].percentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
 
     cpuSheet.cell(1, c + 2).date(t).style(styles.title);
-    if (CpuData[t] === 'NA') {
+    if (isNaN(CpuData[t])){
       cpuSheet.cell(2, c + 2).string('NA').style(styles.NA);
     } else {
       cpuSheet.cell(2, c + 2).number(CpuData[t]).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
@@ -124,7 +124,7 @@ module.exports = (filename, data) => {
     networkSheet.cell(networkCount + 3, c + 2).date(t).style(styles.title);
     networkNames.forEach((networkName, row) => {
       const networkAtTime = NetworkData[networkName][t];
-      if(networkAtTime.bytesIn === 'NA' && networkAtTime.bytesOut === 'NA'){
+      if(isNaN(networkAtTime.bytesIn) && isNaN(networkAtTime.bytesOut)){
         networkSheet.cell(row + 2, c + 2).string('NA').style(styles.NA);
         networkSheet.cell(networkCount + row + 4, c + 2).string('NA').style(styles.NA);
       }else{

@@ -58,8 +58,7 @@ module.exports = (filename, data) => {
     }
   };
 
-  data.forEach(datum => {
-    const { time, diskData, memoryData, cpuData, networkData } = datum;
+  data.forEach(({ time, diskData, memoryData, cpuData, networkData }) => {
     times.push(time);
     diskNames = Object.keys(diskData);
     diskNames.forEach(diskName =>{
@@ -111,7 +110,7 @@ module.exports = (filename, data) => {
     });
 
     memorySheet.cell(1, c + 2).date(t).style(styles.title);
-    memorySheet.cell(2, c + 2).number(MemoryData[t].percentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
+    memorySheet.cell(2, c + 2).number(MemoryData[t].memoryUsedPercentage).style(Object.assign({ numberFormat: '0.00%' }, styles.standard));
 
     cpuSheet.cell(1, c + 2).date(t).style(styles.title);
     if (isNaN(CpuData[t])){
